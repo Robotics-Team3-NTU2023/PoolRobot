@@ -5,6 +5,7 @@ import cv2
 from circle import detect_circle
 import argparse
 from aruco import detect_aruco
+from img_preproc import img_preprocess
 import numpy as np
 
 parser = argparse.ArgumentParser()
@@ -40,18 +41,17 @@ rf = Roboflow(api_key="q8MrumMuB6fU2rqctKz4")
 project = rf.workspace().project("poolgame")
 model = project.version(6).model
 
-img_path = args.img_path
+# img_path = args.img_path
 
-data = model.predict(img_path, confidence=50, overlap=30).json()
+img = cv2.imread(args.img_path)
+img_after_proc_path = "./proc_img.png"
+img_preprocess(img)
+
+data = model.predict(img_after_proc_path, confidence=50, overlap=30).json()
 
 with open('bbox.json', 'w', encoding='utf-8') as f:
     json.dump(data, f, ensure_ascii=False, indent=4)
 
-img = cv2.imread(img_path)
-# cv2.imshow("My_Image", img)
-
-# # 按下任意鍵則關閉所有視窗
-# cv2.waitKey(0)
 
 points = []
 
