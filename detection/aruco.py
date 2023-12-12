@@ -43,27 +43,30 @@ ARUCO_DICT = {
 
 pocket_points = []
 
-def detect_aruco(img):
+def detect_aruco(image):
     # load the input image from disk and resize it
-    print("[INFO] loading image...")
-    image = img
-    image = imutils.resize(image, width=600)
+    print("[INFO] Aruco detecting...")
+    
+    # Aruco type
+    type = 'DICT_6X6_100'
+    
+    # image = imutils.resize(image, width=600)
 
     # verify that the supplied ArUCo tag exists and is supported by
     # OpenCV
-    if ARUCO_DICT.get("DICT_6X6_100", None) is None:
-        print("[INFO] ArUCo tag of '{}' is not supported".format("DICT_6X6_100"))
+    if ARUCO_DICT.get(type, None) is None:
+        print("[INFO] ArUCo tag of '{}' is not supported".format(type))
         sys.exit(0)
 
     # load the ArUCo dictionary, grab the ArUCo parameters, and detect
     # the markers
-    print("[INFO] detecting '{}' tags...".format("DICT_6X6_100"))
+    print("[INFO] detecting '{}' tags...".format(type))
     # arucoDict = cv2.aruco.Dictionary_get(ARUCO_DICT[args["type"]])
     # arucoParams = cv2.aruco.DetectorParameters_create()
     # (corners, ids, rejected) = cv2.aruco.detectMarkers(image, arucoDict,
     # 	parameters=arucoParams)
 
-    dictionary = cv2.aruco.getPredefinedDictionary(ARUCO_DICT["DICT_6X6_100"])
+    dictionary = cv2.aruco.getPredefinedDictionary(ARUCO_DICT[type])
     parameters =  cv2.aruco.DetectorParameters()
     detector = cv2.aruco.ArucoDetector(dictionary, parameters)
 
@@ -112,27 +115,29 @@ def detect_aruco(img):
 
             # Find pocket
             if markerID == 7:
-                cv2.circle(image, (cX + 33, cY + 33), 4, (0, 0, 255), -1)
-                pocket_points.append((cX + 33, cY + 33))
+                cv2.circle(image, (cX + 65, cY + 65), 4, (0, 0, 255), -1)
+                pocket_points.append((cX + 65, cY + 65))
             elif markerID == 11:
-                cv2.circle(image, (cX, cY + 28), 4, (0, 0, 255), -1)
-                pocket_points.append((cX, cY + 28))
+                cv2.circle(image, (cX, cY + 60), 4, (0, 0, 255), -1)
+                pocket_points.append((cX, cY + 60))
             elif markerID == 3:
-                cv2.circle(image, (cX - 33, cY + 33), 4, (0, 0, 255), -1)
-                pocket_points.append((cX - 33, cY + 33))
+                cv2.circle(image, (cX - 65, cY + 65), 4, (0, 0, 255), -1)
+                pocket_points.append((cX - 65, cY + 65))
             elif markerID == 12:
-                cv2.circle(image, (cX + 30, cY - 30), 4, (0, 0, 255), -1)
-                pocket_points.append((cX + 30, cY - 30))
+                cv2.circle(image, (cX + 65, cY - 65), 4, (0, 0, 255), -1)
+                pocket_points.append((cX + 65, cY - 65))
             elif markerID == 2:
-                cv2.circle(image, (cX, cY - 22), 4, (0, 0, 255), -1)
-                pocket_points.append((cX, cY - 22))
+                cv2.circle(image, (cX, cY - 60), 4, (0, 0, 255), -1)
+                pocket_points.append((cX, cY - 60))
             elif markerID == 1:
-                cv2.circle(image, (cX - 33, cY - 33), 4, (0, 0, 255), -1)
-                pocket_points.append((cX - 33, cY - 33))
+                cv2.circle(image, (cX - 65, cY - 65), 4, (0, 0, 255), -1)
+                pocket_points.append((cX - 65, cY - 65))
 
-    f = open("pockets.txt", "w")
+    # f = open("pockets.txt", "w")
     for point in pocket_points:
-        f.write(str(point) + "\n")
-    f.close()
+        # f.write(str(point) + "\n")
+        text = str(point)
+        cv2.putText(image, text, (point[0] + 20, point[1]), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 1, cv2.LINE_AA)
+    # f.close()
     
-    return image
+    return image, pocket_points

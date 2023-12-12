@@ -22,7 +22,7 @@ posHole=np.array([0,0,0])
 posWhiteBall=np.array([100,50,0])
 posBall=np.array([50,50,0])
 
-def goStrike(posHole,posBall,posWhiteBall):
+def goStrike(posHole,posBall,posWhiteBall,ballRadius):
     '''
     input:
     Hole position np.array(3)
@@ -51,9 +51,9 @@ def goStrike(posHole,posBall,posWhiteBall):
     return posintStrike,vecWhiteballStrike
 
 
-def drawTable(posHole,posWhiteBall,posBall,p1,v1):
+def drawTable(posHole,posWhiteBall,posBall,p1,v1,ballRadius):
     # 畫出圖
-    shape=(1290,1080,3)
+    shape=(960,1280,3)
     img = np.zeros(shape, np.uint8)
 
     # 畫洞
@@ -66,31 +66,31 @@ def drawTable(posHole,posWhiteBall,posBall,p1,v1):
     cv2.circle(img,(posWhiteBall[0],posWhiteBall[1]),ballRadius,color=(255,255,255),thickness=4)
 
     # 打擊方向
-    cv2.line(img, (p1[0], p1[1]), ((int)(p1[0]-2*v1[0]), (int)(p1[1]-2*v1[1])), (0, 0, 255), 3)
+    cv2.line(img, (p1[0], p1[1]), ((int)(p1[0]-0.5*v1[0]), (int)(p1[1]-0.5*v1[1])), (0, 0, 255), 3)
 
     # 文字
     text = f'W:{posWhiteBall}'
-    cv2.putText(img, text, (500, 200), cv2.FONT_HERSHEY_PLAIN,1, (0, 255, 255), 1, cv2.LINE_AA)
+    cv2.putText(img, text, (900, 150), cv2.FONT_HERSHEY_PLAIN,1, (0, 255, 255), 1, cv2.LINE_AA)
     text = f'B:{posBall}'
-    cv2.putText(img, text, (500, 230), cv2.FONT_HERSHEY_PLAIN,1, (0, 255, 255), 1, cv2.LINE_AA)
+    cv2.putText(img, text, (900, 180), cv2.FONT_HERSHEY_PLAIN,1, (0, 255, 255), 1, cv2.LINE_AA)
     text = f'H:{posHole}'
-    cv2.putText(img, text, (500, 260), cv2.FONT_HERSHEY_PLAIN,1, (0, 255, 255), 1, cv2.LINE_AA)
+    cv2.putText(img, text, (900, 210), cv2.FONT_HERSHEY_PLAIN,1, (0, 255, 255), 1, cv2.LINE_AA)
 
     text = f'out pos:{p1}'
-    cv2.putText(img, text, (500, 280), cv2.FONT_HERSHEY_PLAIN,1, (255, 0, 255), 1, cv2.LINE_AA)
+    cv2.putText(img, text, (900, 250), cv2.FONT_HERSHEY_PLAIN,1, (255, 0, 255), 1, cv2.LINE_AA)
     text = f'out vec:{v1}'
-    cv2.putText(img, text, (500, 300), cv2.FONT_HERSHEY_PLAIN,1, (255, 0, 255), 1, cv2.LINE_AA)
+    cv2.putText(img, text, (900, 280), cv2.FONT_HERSHEY_PLAIN,1, (255, 0, 255), 1, cv2.LINE_AA)
 
-
-
-    cv2.imshow("-",img)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    # cv2.imshow("-",img)
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
+    
+    cv2.imwrite('collision.png', img)
     return
 
-def drawball(balls,whiteball,hole):
+def drawball(balls,whiteball,hole,ballRadius):
     # 出圖
-    shape=(1290,1080,3)
+    shape=(960,1280,3)
     img = np.zeros(shape, np.uint8)
 
     # 畫洞
@@ -107,30 +107,16 @@ def drawball(balls,whiteball,hole):
         cv2.circle(img,(w.pos[0],w.pos[1]),ballRadius,color=(255,255,255),thickness=4)
         cv2.putText(img, w.num, (w.pos[0],w.pos[1]), cv2.FONT_HERSHEY_PLAIN,1, (255,255,255), 1, cv2.LINE_AA)
     
-    cv2.imshow("-",img)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    # cv2.imshow("-",img)
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
     return
 
 def takefirst(elem):
      return int(elem[0])
  
-def getdata():
-    data=[
-        ['4',(799,324)],
-        ['5',(262,626)],
-        ['10',(581,360)],
-        ['11',(413,701)],
-        ['0',(750,380)],
-        ['14',(570,605)],
-        ['3',(727,566)],
-        ['9',(464,558)],
-        ['13',(587,491)],
-        ['7',(325,625)],
-        ['1',(493,381)],
-        ['8',(579,286)],
-        ['15',(774,517)]
-    ]
+def getdata(points):
+    data=points
     data.sort(key=takefirst, reverse=False)
     balls=[]
     whiteBall=[]
@@ -141,11 +127,11 @@ def getdata():
             balls.append(ball(b[0],b[1]))
     return whiteBall,balls
 
-def gethole():
+def gethole(pockets):
     # 1000*800
-    data=[(10,10),(500,10),(1000,10),
-          (10,700),(500,700),(1000,700)]
+    data=pockets
     return data
+
 def findball(whiteBall,balls,holes):
     # 先照順序，之後再說
     posBall=np.array(balls[0].pos)
@@ -161,15 +147,13 @@ def findball(whiteBall,balls,holes):
     posHole=np.array(holes[id])
     return posHole,posBall,posWhiteBall
 
-# %% 
-if __name__ == '__main__':
-    # ballRadius=(int)(25/2) #mm
-    ballRadius=(int)(25/2*2) #mm
+def cal_collision(points, pockets):
+    print("Collision :")
+    ballRadius=30 #mm
     
-    whiteBall,balls=getdata()
-    holes=gethole()
-    drawball(balls,whiteBall,holes)
-    
+    whiteBall,balls=getdata(points)
+    holes=gethole(pockets)
+    drawball(balls,whiteBall,holes,ballRadius)
 
     # posHole=np.array([10,10,0])
     # posWhiteBall=np.array([30,150,0])
@@ -177,8 +161,5 @@ if __name__ == '__main__':
     
     posHole,posBall,posWhiteBall=findball(whiteBall,balls,holes)
 
-    p1,v1=goStrike(posHole,posBall,posWhiteBall)
-    drawTable(posHole,posWhiteBall,posBall,p1,v1)
-
-
-# %%
+    p1,v1=goStrike(posHole,posBall,posWhiteBall,ballRadius)
+    drawTable(posHole,posWhiteBall,posBall,p1,v1,ballRadius)
