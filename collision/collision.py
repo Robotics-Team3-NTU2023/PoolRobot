@@ -148,7 +148,6 @@ def findball(whiteBall,balls,holes):
     return posHole,posBall,posWhiteBall
 
 def cal_collision(points, pockets):
-    print("Collision :")
     ballRadius=30 #mm
     
     whiteBall,balls=getdata(points)
@@ -159,7 +158,15 @@ def cal_collision(points, pockets):
     # posWhiteBall=np.array([30,150,0])
     # posBall=np.array([26,56,0])
     
-    posHole,posBall,posWhiteBall=findball(whiteBall,balls,holes)
+    if balls and whiteBall:
+        print("[Status] Striking...")
+        posHole,posBall,posWhiteBall=findball(whiteBall,balls,holes)
+        p1,v1=goStrike(posHole,posBall,posWhiteBall,ballRadius)
+        drawTable(posHole,posWhiteBall,posBall,p1,v1,ballRadius)
+    elif not whiteBall:
+        print("[Status] Cannot find the white ball.")
+    elif not balls:
+        print("[Status] End of the game.")
 
-    p1,v1=goStrike(posHole,posBall,posWhiteBall,ballRadius)
-    drawTable(posHole,posWhiteBall,posBall,p1,v1,ballRadius)
+    # p1,v1=goStrike(posHole,posBall,posWhiteBall,ballRadius)
+    # drawTable(posHole,posWhiteBall,posBall,p1,v1,ballRadius)

@@ -60,7 +60,7 @@ def detect_aruco(image):
 
     # load the ArUCo dictionary, grab the ArUCo parameters, and detect
     # the markers
-    print("[INFO] detecting '{}' tags...".format(type))
+    # print("[INFO] detecting '{}' tags...".format(type))
     # arucoDict = cv2.aruco.Dictionary_get(ARUCO_DICT[args["type"]])
     # arucoParams = cv2.aruco.DetectorParameters_create()
     # (corners, ids, rejected) = cv2.aruco.detectMarkers(image, arucoDict,

@@ -2,9 +2,9 @@ from roboflow import Roboflow
 from tqdm import tqdm
 import json
 import cv2
-from circle import detect_circle
+from detection.circle import detect_circle
 import argparse
-from aruco import detect_aruco
+from detection.aruco import detect_aruco
 from detection.img_preproc import img_preprocess
 import numpy as np
 from collision.collision import cal_collision
@@ -97,8 +97,6 @@ def main(args):
 
     # calculating collision
     cal_collision(points, pockets)
-
-    print('Done')
     
 
 if __name__ == "__main__":
