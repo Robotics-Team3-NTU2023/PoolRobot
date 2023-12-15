@@ -122,7 +122,7 @@ def getdata(points):
     data.sort(key=takefirst, reverse=False)
     balls=[]
     whiteBall=[]
-    for b in data[0:5]:
+    for b in data:
         if b[0]=='0':
             whiteBall.append(ball(b[0],b[1]))
         else:
@@ -169,40 +169,7 @@ def getTableEdge(holes):
             pass
     
     return hole_fix
-def findball(whiteBall,balls,holes,ballRadius,img):
-    # [X]先照順序，之後再說
-    # 先找適合的洞
-    # 檢查路徑上有沒有障礙物，有的話換下一個球
-    # 都沒有的話就取第一顆球然後打直線
-    ballRadius_img=30
-    posWhiteBall=np.array(whiteBall[0].pos)
-    for b in balls:
-        value=-1
-        id=-1
-        for i,h in enumerate(holes):
-            print(value,id)
-            dot_value=np.dot(normalize(b.pos-posWhiteBall),normalize(np.array(h)-b.pos))
-            print(b.pos,np.array(h),dot_value)
-            if dot_value>value:
-                if dot_value>0.15: 
-                    value=dot_value
-                    id=i
-        if id==-1:
-            print(f"[find_hole]: ball id={b.num}, can't find any suitable hole")
-            
-        else:
-            if obstacleOnPath(balls,np.array([holes[id][0],holes[id][1]]),posWhiteBall,np.array([b.pos[0],b.pos[1]]),ballRadius_img,img):
-                print(f"[find_hole] found obstacle")
-            else:
-                print(f"[find_hole]: find hole = {id}, hole position = ({holes[id]})")
-                posHole=np.array(holes[id])
-                posBall=b.pos
-                return posHole,posBall,posWhiteBall
-    
-    print("[find_hole]: set straight path")
-    posBall=balls[0].pos
-    posHole=posBall+(posBall-posWhiteBall)
-    return posHole,posBall,posWhiteBall
+
     
 
 
@@ -258,13 +225,12 @@ def obstacleOnPath(balls,posHole,posWhiteBall,posBall,ballRadius_img,img):
     p1s2=p1c+radius*(-m_inv)
     p2s1=p2c+radius*(m_inv)
     p2s2=p2c+radius*(-m_inv)
-    drawLines(img,(int(p1c[0]),int(p1c[1])),(int(p2c[0]),int(p2c[1])),(int(p1s1[0]),int(p1s1[1])),
-              (int(p1s2[0]),int(p1s2[1])),(int(p2s1[0]),int(p2s1[1])),(int(p2s2[0]),int(p2s2[1])))
+    # drawLines(img,(int(p1c[0]),int(p1c[1])),(int(p2c[0]),int(p2c[1])),(int(p1s1[0]),int(p1s1[1])),
+    #           (int(p1s2[0]),int(p1s2[1])),(int(p2s1[0]),int(p2s1[1])),(int(p2s2[0]),int(p2s2[1])))
     
     pathLen=get_distance_from_point_to_line(p1c,p2s1,p2s2)
-    
     for b in balls:
-        if get_distance_from_point_to_line(b.pos,p1c,p2c)<=radius:
+        if get_distance_from_point_to_line(b.pos,p1c,p2c)<=3*radius:
             if get_distance_from_point_to_line(b.pos,p1s1,p1s2)<(pathLen):
                 if get_distance_from_point_to_line(b.pos,p2s1,p2s2)<(pathLen):
                     print(f"[Detected obstacle] id={b.num}, pos=({b.pos})")
@@ -282,15 +248,15 @@ def obstacleOnPath(balls,posHole,posWhiteBall,posBall,ballRadius_img,img):
     p2s1=p2c+radius*(m_inv)
     p2s2=p2c+radius*(-m_inv)
     
-    drawLines(img,(int(p1c[0]),int(p1c[1])),(int(p2c[0]),int(p2c[1])),(int(p1s1[0]),int(p1s1[1])),
-              (int(p1s2[0]),int(p1s2[1])),(int(p2s1[0]),int(p2s1[1])),(int(p2s2[0]),int(p2s2[1])))
+    # drawLines(img,(int(p1c[0]),int(p1c[1])),(int(p2c[0]),int(p2c[1])),(int(p1s1[0]),int(p1s1[1])),
+    #           (int(p1s2[0]),int(p1s2[1])),(int(p2s1[0]),int(p2s1[1])),(int(p2s2[0]),int(p2s2[1])))
     
     pathLen=get_distance_from_point_to_line(p1c,p2s1,p2s2)
     
     for b in balls:
-        if get_distance_from_point_to_line(b.pos,p1c,p2c)<=radius:
-            if get_distance_from_point_to_line(b.pos,p1s1,p1s2)<(pathLen/2.0):
-                if get_distance_from_point_to_line(b.pos,p2s1,p2s2)<(pathLen/2.0):
+        if get_distance_from_point_to_line(b.pos,p1c,p2c)<=3*radius:
+            if get_distance_from_point_to_line(b.pos,p1s1,p1s2)<(pathLen):
+                if get_distance_from_point_to_line(b.pos,p2s1,p2s2)<(pathLen):
                     print(f"[Detected obstacle] id={b.num}, pos=({b.pos})")
                     return True
     
@@ -298,13 +264,47 @@ def obstacleOnPath(balls,posHole,posWhiteBall,posBall,ballRadius_img,img):
     return False
   
   
+def findball(whiteBall,balls,holes,ballRadius,img):
+    # [X]先照順序，之後再說
+    # 先找適合的洞
+    # 檢查路徑上有沒有障礙物，有的話換下一個球
+    # 都沒有的話就取第一顆球然後打直線
+    ballRadius_img=30
+    posWhiteBall=np.array(whiteBall[0].pos)
+    for b in balls:
+        value=-1
+        id=-1
+        for i,h in enumerate(holes):
+            # print(value,id)
+            dot_value=np.dot(normalize(b.pos-posWhiteBall),normalize(np.array(h)-b.pos))
+            # print(b.pos,np.array(h),dot_value)
+            if dot_value>value:
+                if dot_value>0.15: 
+                    value=dot_value
+                    id=i
+        if id==-1:
+            print(f"[find_hole]: ball id={b.num}, can't find any suitable hole")
+            
+        else:
+            if obstacleOnPath(balls,np.array([holes[id][0],holes[id][1]]),posWhiteBall,np.array([b.pos[0],b.pos[1]]),ballRadius_img,img):
+                print(f"[find_hole] found obstacle")
+            else:
+                print(f"[find_hole]: find hole = {id}, hole position = ({holes[id]})")
+                posHole=np.array(holes[id])
+                posBall=b.pos
+                return posHole,posBall,posWhiteBall
+    
+    print("[find_hole]: set straight path")
+    posBall=balls[0].pos
+    posHole=posBall+(posBall-posWhiteBall)
+    return posHole,posBall,posWhiteBall
 
 def cal_collision(points, pockets,img):
     ballRadius=30 #mm
     
     whiteBall,balls=getdata(points)
     holes=gethole(pockets)
-    print(holes)
+    # print(holes)
     drawball(balls,whiteBall,holes,ballRadius)
 
     # posHole=np.array([10,10,0])
