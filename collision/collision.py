@@ -233,7 +233,7 @@ def obstacleOnPath(balls,posHole,posWhiteBall,posBall,ballRadius_img,img):
         if get_distance_from_point_to_line(b.pos,p1c,p2c)<=3*radius:
             if get_distance_from_point_to_line(b.pos,p1s1,p1s2)<(pathLen):
                 if get_distance_from_point_to_line(b.pos,p2s1,p2s2)<(pathLen):
-                    print(f"[Detected obstacle] id={b.num}, pos=({b.pos})")
+                    # print(f"[Detected obstacle] id={b.num}, pos=({b.pos})")
                     return True
     
     
@@ -257,10 +257,10 @@ def obstacleOnPath(balls,posHole,posWhiteBall,posBall,ballRadius_img,img):
         if get_distance_from_point_to_line(b.pos,p1c,p2c)<=3*radius:
             if get_distance_from_point_to_line(b.pos,p1s1,p1s2)<(pathLen):
                 if get_distance_from_point_to_line(b.pos,p2s1,p2s2)<(pathLen):
-                    print(f"[Detected obstacle] id={b.num}, pos=({b.pos})")
+                    # print(f"[Detected obstacle] id={b.num}, pos=({b.pos})")
                     return True
     
-    print("[Detected obstacle] No obstacle on path")
+    # print("[Detected obstacle] No obstacle on path")
     return False
   
   
@@ -283,18 +283,20 @@ def findball(whiteBall,balls,holes,ballRadius,img):
                     value=dot_value
                     id=i
         if id==-1:
-            print(f"[find_hole]: ball id={b.num}, can't find any suitable hole")
+            # print(f"[find_hole]: ball id={b.num}, can't find any suitable hole")
+            continue
             
         else:
             if obstacleOnPath(balls,np.array([holes[id][0],holes[id][1]]),posWhiteBall,np.array([b.pos[0],b.pos[1]]),ballRadius_img,img):
-                print(f"[find_hole] found obstacle")
+                # print(f"[Find hole] found obstacle")
+                continue
             else:
-                print(f"[find_hole]: find hole = {id}, hole position = ({holes[id]})")
+                print(f"[Find hole] find hole = {id}, hole position = ({holes[id]})")
                 posHole=np.array(holes[id])
                 posBall=b.pos
                 return posHole,posBall,posWhiteBall
     
-    print("[find_hole]: set straight path")
+    print("[Find hole] set straight path")
     posBall=balls[0].pos
     posHole=posBall+(posBall-posWhiteBall)
     return posHole,posBall,posWhiteBall
